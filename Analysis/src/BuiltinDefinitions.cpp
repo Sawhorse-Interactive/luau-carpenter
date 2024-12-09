@@ -462,6 +462,9 @@ void registerBuiltinGlobals(Frontend& frontend, GlobalTypes& globals, bool typeC
         attachMagicFunction(getGlobalBinding(globals, "require"), magicFunctionRequire);
         attachDcrMagicFunction(getGlobalBinding(globals, "require"), dcrMagicFunctionRequire);
     }
+    
+    attachMagicFunction(getGlobalBinding(globals, "shared"), magicFunctionRequire);
+    attachDcrMagicFunction(getGlobalBinding(globals, "shared"), dcrMagicFunctionRequire);
 }
 
 static std::vector<TypeId> parseFormatString(NotNull<BuiltinTypes> builtinTypes, const char* data, size_t size)

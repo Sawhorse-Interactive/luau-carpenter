@@ -824,19 +824,21 @@ const Scope* AnyTypeSummary::findInnerMostScope(const Location location, const M
 
 std::optional<AstExpr*> AnyTypeSummary::matchRequire(const AstExprCall& call)
 {
-    const char* require = "require";
-
     if (call.args.size != 1)
         return std::nullopt;
 
-    const AstExprGlobal* funcAsGlobal = call.func->as<AstExprGlobal>();
-    if (!funcAsGlobal || funcAsGlobal->name != require)
-        return std::nullopt;
+    const char* require[2] = {"require", "shared"};
 
-    if (call.args.size != 1)
-        return std::nullopt;
+    for (const char* requireChar : require)
+    {
+        const Luau::AstExprGlobal* funcAsGlobal = call.func->as<AstExprGlobal>();
+        if (!funcAsGlobal || funcAsGlobal->name != requireChar)
+            continue;
 
-    return call.args.data[0];
+        return call.args.data[0];
+    }
+
+    return std::nullopt;
 }
 
 AstNode* AnyTypeSummary::getNode(AstStatBlock* root, AstNode* node)

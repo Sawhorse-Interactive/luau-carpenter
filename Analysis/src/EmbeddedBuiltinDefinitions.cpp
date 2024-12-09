@@ -105,6 +105,7 @@ declare os: {
 }
 
 @checked declare function require(target: any): any
+@checked declare function shared(target: any): any
 
 @checked declare function getfenv(target: any): { [string]: any }
 
@@ -327,6 +328,7 @@ declare os: {
 }
 
 @checked declare function require(target: any): any
+@checked declare function shared(target: any): any
 
 @checked declare function getfenv(target: any): { [string]: any }
 

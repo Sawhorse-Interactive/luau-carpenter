@@ -4834,19 +4834,21 @@ WithPredicate<TypePackId> TypeChecker::checkExprList(
 
 std::optional<AstExpr*> TypeChecker::matchRequire(const AstExprCall& call)
 {
-    const char* require = "require";
-
     if (call.args.size != 1)
         return std::nullopt;
 
-    const AstExprGlobal* funcAsGlobal = call.func->as<AstExprGlobal>();
-    if (!funcAsGlobal || funcAsGlobal->name != require)
-        return std::nullopt;
+    const char* require[2] = {"require", "shared"};
 
-    if (call.args.size != 1)
-        return std::nullopt;
+    for (const char* requireChar : require)
+    {
+        const Luau::AstExprGlobal* funcAsGlobal = call.func->as<AstExprGlobal>();
+        if (!funcAsGlobal || funcAsGlobal->name != requireChar)
+            continue;
 
-    return call.args.data[0];
+        return call.args.data[0];
+    }
+
+    return std::nullopt;
 }
 
 TypeId TypeChecker::checkRequire(const ScopePtr& scope, const ModuleInfo& moduleInfo, const Location& location)
