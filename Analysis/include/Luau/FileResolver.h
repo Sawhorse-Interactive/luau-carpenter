@@ -12,6 +12,7 @@ namespace Luau
 {
 
 class AstExpr;
+class AstExprCall;
 
 using ModuleName = std::string;
 
@@ -124,6 +125,11 @@ struct FileResolver
     }
 
     virtual std::optional<std::string> getEnvironmentForModule(const ModuleName& name) const
+    {
+        return std::nullopt;
+    }
+
+    virtual std::optional<ModuleInfo> resolveRequireLikeImport(const ModuleName& currentModule, const AstExprCall& call)
     {
         return std::nullopt;
     }

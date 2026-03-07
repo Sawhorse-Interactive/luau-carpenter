@@ -1249,18 +1249,20 @@ ControlFlow ConstraintGenerator::visit(const ScopePtr& scope, AstStatLocal* stat
             if (!maybeRequire)
                 continue;
 
-            AstExpr* require = *maybeRequire;
-
-            auto moduleInfo = moduleResolver->resolveModuleInfo(module->name, *require);
+            auto moduleInfo = moduleResolver->resolveModuleInfo(module->name, **maybeRequire);
             if (!moduleInfo)
                 continue;
 
-            ModulePtr module = moduleResolver->getModule(moduleInfo->name);
-            if (!module)
+            ModulePtr depModule = moduleResolver->getModule(moduleInfo->name);
+            if (!depModule)
                 continue;
 
+            // Keep the dependency module alive so that TypeIds from its
+            // interfaceTypes remain valid for the lifetime of this module.
+            module->retainedModules.push_back(depModule);
+
             const Name name{statLocal->vars.data[i]->name.value};
-            scope->importedTypeBindings[name] = module->exportedTypeBindings;
+            scope->importedTypeBindings[name] = depModule->exportedTypeBindings;
             scope->importedModules[name] = moduleInfo->name;
 
             // Imported typeArguments of requires that transitively refer to current module have to be replaced with 'any'

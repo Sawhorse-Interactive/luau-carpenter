@@ -145,6 +145,11 @@ struct Module
     TypePackId returnType = nullptr;
     std::unordered_map<Name, TypeFun> exportedTypeBindings;
 
+    // Modules whose types are referenced by this module's type graph.
+    // Prevents dependency modules from being destroyed while this module
+    // still contains TypeIds pointing into their interfaceTypes arenas.
+    std::vector<ModulePtr> retainedModules;
+
     // Arenas related to the DFG must persist after the DFG no longer exists, as
     // Module objects maintain raw pointers to objects in these arenas.
     DefArena defArena;

@@ -3917,8 +3917,8 @@ TypeId ConstraintSolver::resolveModule(const ModuleInfo& info, const Location& l
             return builtinTypes->anyType;
     }
 
-    ModulePtr module = moduleResolver->getModule(info.name);
-    if (!module)
+    ModulePtr depModule = moduleResolver->getModule(info.name);
+    if (!depModule)
     {
         if (!moduleResolver->moduleExists(info.name) && !info.optional)
             reportError(UnknownRequire{moduleResolver->getHumanReadableModuleName(info.name)}, location);
@@ -3926,20 +3926,24 @@ TypeId ConstraintSolver::resolveModule(const ModuleInfo& info, const Location& l
         return builtinTypes->errorType;
     }
 
-    if (module->type != SourceCode::Type::Module)
+    if (depModule->type != SourceCode::Type::Module)
     {
-        reportError(IllegalRequire{module->humanReadableName, "Module is not a ModuleScript. It cannot be required."}, location);
+        reportError(IllegalRequire{depModule->humanReadableName, "Module is not a ModuleScript. It cannot be required."}, location);
         return builtinTypes->errorType;
     }
 
-    TypePackId modulePack = module->returnType;
+    // Keep the dependency module alive so that TypeIds pointing into its
+    // interfaceTypes arena remain valid for the lifetime of the consumer module.
+    module->retainedModules.push_back(depModule);
+
+    TypePackId modulePack = depModule->returnType;
     if (get<ErrorTypePack>(modulePack))
         return builtinTypes->errorType;
 
     std::optional<TypeId> moduleType = first(modulePack);
     if (!moduleType)
     {
-        reportError(IllegalRequire{module->humanReadableName, "Module does not return exactly 1 value. It cannot be required."}, location);
+        reportError(IllegalRequire{depModule->humanReadableName, "Module does not return exactly 1 value. It cannot be required."}, location);
         return builtinTypes->errorType;
     }
 
