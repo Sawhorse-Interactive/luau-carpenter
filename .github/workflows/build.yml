@@ -1,13 +1,10 @@
-name: build
+name: build (DISABLED)
 
 on:
-  push:
-    branches:
-      - 'master'
-    paths-ignore:
-      - 'docs/**'
-      - 'papers/**'
-      - 'rfcs/**'
+  workflow_dispatch: # Disabled for fork
+  # push:
+  #   branches:
+  #     - 'master'
       - '*.md'
   pull_request:
     paths-ignore:
