@@ -30,6 +30,10 @@ struct RequireTracer : AstVisitor
         if (global && global->name == "require" && expr->args.size >= 1)
             requireCalls.push_back(expr);
 
+        // Also collect require-like imports (e.g. shared()) for dependency tracking
+        if (auto info = fileResolver->resolveRequireLikeImport(currentModuleName, *expr))
+            requireLikeImports.push_back({expr, std::move(*info)});
+
         return true;
     }
 
@@ -162,6 +166,13 @@ struct RequireTracer : AstVisitor
                 result.exprs[require] = {}; // mark require as unresolved
             }
         }
+
+        // Add require-like imports (e.g. shared()) to the require list for dependency tracking
+        for (auto& [call, info] : requireLikeImports)
+        {
+            result.requireList.push_back({info.name, call->location});
+            result.exprs[call] = std::move(info);
+        }
     }
 
     RequireTraceResult& result;
@@ -171,6 +182,7 @@ struct RequireTracer : AstVisitor
     DenseHashMap<AstLocal*, AstExpr*> locals;
     std::vector<AstNode*> work;
     std::vector<AstExprCall*> requireCalls;
+    std::vector<std::pair<AstExprCall*, ModuleInfo>> requireLikeImports;
 };
 
 RequireTraceResult traceRequires(FileResolver* fileResolver, AstStatBlock* root, const ModuleName& currentModuleName, const TypeCheckLimits& limits)

@@ -1,13 +1,10 @@
-name: benchmark
+name: benchmark (DISABLED)
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - "docs/**"
-      - "papers/**"
-      - "rfcs/**"
+  workflow_dispatch: # Disabled for fork
+  # push:
+  #   branches:
+  #     - master
       - "*.md"
 
 jobs:

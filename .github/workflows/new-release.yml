@@ -1,7 +1,7 @@
-name: new-release
+name: new-release (DISABLED)
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Disabled for fork
     inputs:
       version:
         required: true
